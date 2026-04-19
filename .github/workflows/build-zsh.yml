@@ -1,0 +1,83 @@
+name: Build Zsh
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - ".github/workflows/build-zsh.yml"
+      - ".preconfig"
+      - "configure.ac"
+      - "aczsh.m4"
+      - "aclocal.m4"
+      - "Config/**"
+      - "Doc/**"
+      - "Etc/**"
+      - "Functions/**"
+      - "Misc/**"
+      - "Scripts/**"
+      - "Src/**"
+      - "StartupFiles/**"
+      - "Test/**"
+      - "Util/**"
+      - "Makefile.in"
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Build Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf \
+            bison \
+            build-essential \
+            gawk \
+            libcap-dev \
+            libgdbm-dev \
+            libncurses-dev \
+            libpcre2-dev \
+            texinfo \
+            yodl
+
+      - name: Bootstrap Configure Script
+        run: ./Util/preconfig
+
+      - name: Configure
+        run: |
+          ./configure \
+            --prefix=/tmp/zsh-install \
+            --enable-etcdir=/tmp/zsh-install/etc \
+            --enable-function-subdirs \
+            --enable-pcre \
+            --enable-cap \
+            --enable-gdbm
+
+      - name: Build
+        run: make -j"$(nproc)"
+
+      - name: Install Runtime
+        run: |
+          make install.bin install.modules install.fns install.man
+
+      - name: Verify Runtime Modules
+        run: |
+          /tmp/zsh-install/bin/zsh --version
+          /tmp/zsh-install/bin/zsh -fc 'zmodload zsh/regex && zmodload zsh/terminfo && zmodload zsh/stat && echo module-check-ok'
+
+      - name: Package Artifact
+        run: |
+          tar -C /tmp/zsh-install -czf zsh-install-linux-x86_64.tar.gz .
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zsh-install-linux-x86_64
+          path: zsh-install-linux-x86_64.tar.gz
