@@ -67,10 +67,15 @@ jobs:
         run: |
           make DESTDIR=/tmp/stage install.bin install.modules install.fns install.man
 
+      - name: Expose Installed Prefix For Verification
+        run: |
+          sudo mkdir -p /home/chronos/.local/opt
+          sudo ln -sfn /tmp/stage/home/chronos/.local/opt/zsh-gha /home/chronos/.local/opt/zsh-gha
+
       - name: Verify Runtime Modules
         run: |
-          /tmp/stage/home/chronos/.local/opt/zsh-gha/bin/zsh --version
-          /tmp/stage/home/chronos/.local/opt/zsh-gha/bin/zsh -fc 'zmodload zsh/regex && zmodload zsh/terminfo && zmodload zsh/stat && echo module-check-ok'
+          /home/chronos/.local/opt/zsh-gha/bin/zsh --version
+          /home/chronos/.local/opt/zsh-gha/bin/zsh -fc 'zmodload zsh/regex && zmodload zsh/terminfo && zmodload zsh/stat && echo module-check-ok'
 
       - name: Package Artifact
         run: |
