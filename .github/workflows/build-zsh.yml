@@ -65,16 +65,16 @@ jobs:
 
       - name: Install Runtime
         run: |
-          make install.bin install.modules install.fns install.man
+          make DESTDIR=/tmp/stage install.bin install.modules install.fns install.man
 
       - name: Verify Runtime Modules
         run: |
-          /home/chronos/.local/opt/zsh-gha/bin/zsh --version
-          /home/chronos/.local/opt/zsh-gha/bin/zsh -fc 'zmodload zsh/regex && zmodload zsh/terminfo && zmodload zsh/stat && echo module-check-ok'
+          /tmp/stage/home/chronos/.local/opt/zsh-gha/bin/zsh --version
+          /tmp/stage/home/chronos/.local/opt/zsh-gha/bin/zsh -fc 'zmodload zsh/regex && zmodload zsh/terminfo && zmodload zsh/stat && echo module-check-ok'
 
       - name: Package Artifact
         run: |
-          tar -C /home/chronos/.local/opt/zsh-gha -czf zsh-install-linux-x86_64.tar.gz .
+          tar -C /tmp/stage/home/chronos/.local/opt/zsh-gha -czf zsh-install-linux-x86_64.tar.gz .
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
