@@ -53,8 +53,8 @@ jobs:
       - name: Configure
         run: |
           ./configure \
-            --prefix=/tmp/zsh-install \
-            --enable-etcdir=/tmp/zsh-install/etc \
+            --prefix=/home/chronos/.local/opt/zsh-gha \
+            --enable-etcdir=/home/chronos/.local/opt/zsh-gha/etc \
             --enable-function-subdirs \
             --enable-pcre \
             --enable-cap \
@@ -69,12 +69,12 @@ jobs:
 
       - name: Verify Runtime Modules
         run: |
-          /tmp/zsh-install/bin/zsh --version
-          /tmp/zsh-install/bin/zsh -fc 'zmodload zsh/regex && zmodload zsh/terminfo && zmodload zsh/stat && echo module-check-ok'
+          /home/chronos/.local/opt/zsh-gha/bin/zsh --version
+          /home/chronos/.local/opt/zsh-gha/bin/zsh -fc 'zmodload zsh/regex && zmodload zsh/terminfo && zmodload zsh/stat && echo module-check-ok'
 
       - name: Package Artifact
         run: |
-          tar -C /tmp/zsh-install -czf zsh-install-linux-x86_64.tar.gz .
+          tar -C /home/chronos/.local/opt/zsh-gha -czf zsh-install-linux-x86_64.tar.gz .
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
